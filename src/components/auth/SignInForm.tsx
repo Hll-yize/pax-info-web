@@ -11,6 +11,8 @@ import request from "@/utils/request"; // 导入封装的request
 import { useRouter } from "next/navigation"; // 用于跳转页面
 import { ApiResponse, UserInfo } from '@/types/api';
 import { toAbsoluteUrl } from "@/utils/toAbsoluteUrl";
+import { useUserStore } from '@/store/userStore';
+import Cookies from 'js-cookie';
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +21,7 @@ export default function SignInForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null); // 错误信息
   const router = useRouter(); // 获取router对象
+  const setUser = useUserStore((state) => state.setUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,12 +63,14 @@ export default function SignInForm() {
         // 如果成功，跳转到首页
         const userInfo: UserInfo = response.Data as UserInfo;
         userInfo.userImage = toAbsoluteUrl(userInfo.userImage);
-
+        // 保存到 Cookie，供中间件识别（推荐带上过期时间）
+        Cookies.set('token', userInfo.token, { expires: 7 });
+        setUser(userInfo);
         // 缓存 token 和用户信息
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", userInfo?.token || "");
-          localStorage.setItem("userInfo", JSON.stringify(userInfo || {}));
-        }
+        // if (typeof window !== "undefined") {
+        //   localStorage.setItem("token", userInfo?.token || "");
+        //   localStorage.setItem("userInfo", JSON.stringify(userInfo || {}));
+        // }
         router.push("/"); // 跳转到首页
       }
     } catch (error) {

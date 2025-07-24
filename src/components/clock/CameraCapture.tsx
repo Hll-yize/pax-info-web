@@ -5,6 +5,7 @@ import imageCompression from "browser-image-compression";
 import request from "@/utils/request";
 import { ApiResponse } from "@/types/api";
 import Image from "next/image";
+import { useUserStore } from '@/store/userStore';
 
 interface CaptureParams {
   UserID: string | number;
@@ -22,10 +23,7 @@ const CameraUploader: React.FC = () => {
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const userInfo =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("userInfo") || "{}")
-      : {};
+  const userInfo = useUserStore((state) => state.user);
 
   const startCamera = async () => {
     try {
@@ -107,12 +105,12 @@ const CameraUploader: React.FC = () => {
 
   const matchPerson = async (imgBase64?: string | null, needPhoto: boolean = true) => {
     const params: CaptureParams = {
-      "UserID": userInfo.id,
+      "UserID": userInfo?.id || '',
     }
     if (needPhoto) {
       params['imgBase64'] = imgBase64;
     } else {
-      params['UserName'] = userInfo.userName;
+      params['UserName'] = userInfo?.userName;
     }
     try {
       const response: ApiResponse = await request({

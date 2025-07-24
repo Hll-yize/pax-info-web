@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // 创建 Axios 实例
@@ -13,7 +14,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 获取 token
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? Cookies.get('token') : null;
     console.log('token:', token);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;

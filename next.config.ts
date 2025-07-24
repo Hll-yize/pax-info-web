@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  images: {
+    domains: ['info.paxsz.com'],
+  },
 };
 
 export default nextConfig;

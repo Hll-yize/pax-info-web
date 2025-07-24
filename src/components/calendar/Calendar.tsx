@@ -15,6 +15,7 @@ import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 import request from "@/utils/request";
 import { ApiResponse } from "@/types/api";
+import { useUserStore } from '@/store/userStore';
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -35,10 +36,7 @@ interface CalendarData {
 
 const Calendar: React.FC = () => {
 
-  const userInfo =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("userInfo") || "{}")
-      : {};
+  const userInfo = useUserStore((state) => state.user);
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
@@ -94,7 +92,7 @@ const Calendar: React.FC = () => {
   const fetchEvents = async (fDate: string) => {
     try {
       // 发起 GET 请求，参数写在 url query
-      const userNo = userInfo.id;
+      const userNo = userInfo?.id;
 
       // 如果 request 封装支持 params 参数传递
       const res: ApiResponse<CalendarData> = await request({
