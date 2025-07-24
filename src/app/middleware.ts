@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/register', '/public']; // 不需要登录的路径
+const PUBLIC_PATHS = ['/signin', '/register', '/public']; // 不需要登录的路径
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

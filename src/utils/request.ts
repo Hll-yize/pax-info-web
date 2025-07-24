@@ -30,8 +30,19 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
-    // 错误处理
-    console.error('Request failed with error:', error);
+    const status = error.response?.status;
+
+    if (status === 401) {
+      // 避免重复跳转
+      if (typeof window !== 'undefined' && window.location.pathname !== '/signin') {
+        // 清理 token
+        document.cookie = 'token=; Max-Age=0';
+
+        // 跳转到登录页面
+        window.location.href = '/signin';
+      }
+    }
+
     return Promise.reject(error);
   }
 );

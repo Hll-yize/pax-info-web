@@ -4,13 +4,25 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation"; 
+import { useUserStore } from "@/store/userStore";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const router = useRouter();
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn());
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push('/signin');
+    }
+  }, [isLoggedIn, router]);
+  
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
 
   // Dynamic class for main content margin based on sidebar state
