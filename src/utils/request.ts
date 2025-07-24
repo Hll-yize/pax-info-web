@@ -39,8 +39,8 @@ axiosInstance.interceptors.response.use(
 const request = async <T>(config: {
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-    data?: Record<string, any>,
-    params?: Record<string, any>,
+    data?: Record<string, unknown>,
+    params?: Record<string, unknown>,
     isAuthRequired?: boolean
 }): Promise<T> => {
   const { method, url, data, params, isAuthRequired = true } = config;

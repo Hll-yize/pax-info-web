@@ -3,6 +3,16 @@
 import React, { useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import request from "@/utils/request";
+import { ApiResponse } from "@/types/api";
+import Image from "next/image";
+
+interface CaptureParams {
+  UserID: string | number;
+  imgBase64?: string | null;
+  UserName?: string | null;
+
+  [key: string]: unknown;  // 允许任意字符串键
+}
 
 const CameraUploader: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -60,10 +70,19 @@ const CameraUploader: React.FC = () => {
     }
   };
 
+
+  function blobToFile(blob: Blob, fileName: string): File {
+    return new File([blob], fileName, {
+      type: blob.type,
+      lastModified: Date.now(),
+    });
+  }
+
   const handleImageBlob = async (file: Blob) => {
     try {
       // 压缩图片
-      const compressed = await imageCompression(file, {
+      const fileObj = blobToFile(file /*Blob*/, 'image.jpg');
+      const compressed = await imageCompression(fileObj, {
         maxWidthOrHeight: 900,
         maxSizeMB: 1,
         useWebWorker: true,
@@ -87,7 +106,7 @@ const CameraUploader: React.FC = () => {
   };
 
   const matchPerson = async (imgBase64?: string | null, needPhoto: boolean = true) => {
-    let params: any = {
+    const params: CaptureParams = {
       "UserID": userInfo.id,
     }
     if (needPhoto) {
@@ -96,7 +115,7 @@ const CameraUploader: React.FC = () => {
       params['UserName'] = userInfo.userName;
     }
     try {
-      const response = await request({
+      const response: ApiResponse = await request({
         url: "/Clock/MatchPerson",
         method: "POST",
         data: params,
@@ -158,10 +177,12 @@ const CameraUploader: React.FC = () => {
       {base64Image && (
         <div className="mt-4">
           <h4 className="font-medium mb-2">预览：</h4>
-          <img
+          <Image
             src={`data:image/jpeg;base64,${base64Image}`}
             alt="预览图"
             className="w-full max-w-sm border rounded"
+            width={100}
+            height={100}
           />
         </div>
       )}

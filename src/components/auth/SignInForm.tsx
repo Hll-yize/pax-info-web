@@ -9,6 +9,8 @@ import React, { useState } from "react";
 import encryptStr from "@/utils/encryptStr"; // 导入加密函数
 import request from "@/utils/request"; // 导入封装的request
 import { useRouter } from "next/navigation"; // 用于跳转页面
+import { ApiResponse, UserInfo } from '@/types/api';
+import { toAbsoluteUrl } from "@/utils/toAbsoluteUrl";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +45,7 @@ export default function SignInForm() {
 
     try {
       // 使用封装的request函数进行登录请求
-      const response = await request({
+      const response: ApiResponse = await request({
         url: "/Hr_Employee/login",
         method: "POST",
         data: payload,
@@ -56,7 +58,8 @@ export default function SignInForm() {
         setError(response.Message);
       } else if (response.Status === true) {
         // 如果成功，跳转到首页
-        const userInfo = response.Data;
+        const userInfo: UserInfo = response.Data as UserInfo;
+        userInfo.userImage = toAbsoluteUrl(userInfo.userImage);
 
         // 缓存 token 和用户信息
         if (typeof window !== "undefined") {
@@ -102,7 +105,7 @@ export default function SignInForm() {
                   <Input
                     placeholder="Enter your username"
                     type="text"
-                    value={username}
+                    defaultValue={username}
                     onChange={(e) => setUsername(e.target.value)}
                     error={!!error} // 如果有错误，标记为错误状态
                     hint={error && !username ? "Username cannot be empty" : undefined} // 显示提示信息
@@ -116,7 +119,7 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      value={password}
+                      defaultValue={password}
                       onChange={(e) => setPassword(e.target.value)}
                       error={!!error} // 如果有错误，标记为错误状态
                       hint={error && !password ? "Password cannot be empty" : undefined} // 显示提示信息

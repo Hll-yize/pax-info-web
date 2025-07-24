@@ -14,11 +14,23 @@ import {
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 import request from "@/utils/request";
+import { ApiResponse } from "@/types/api";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
     calendar: string;
   };
+}
+
+interface CalendarProps {
+  ID: string;
+  FAM: string;
+  FPM: string;
+  FDate: string;
+}
+
+interface CalendarData {
+  ClockList: CalendarProps[];
 }
 
 const Calendar: React.FC = () => {
@@ -85,7 +97,7 @@ const Calendar: React.FC = () => {
       const userNo = userInfo.id;
 
       // 如果 request 封装支持 params 参数传递
-      const res = await request({
+      const res: ApiResponse<CalendarData> = await request({
         url: "/Clock/GetClockList",
         method: "GET",
         params: {
@@ -95,17 +107,17 @@ const Calendar: React.FC = () => {
       });
 
       // 假设返回格式为 { Status, Data: [...] }，Data是事件数组
-      if (res.Status && Array.isArray(res.Data.ClockList)) {
+      if (res.Status && res.Data && Array.isArray(res.Data.ClockList)) {
         // 这里需要把后端数据转成 FullCalendar 事件结构
         // 下面是示范映射，字段需根据接口返回实际字段改写
-        const mappedEvents = res.Data.ClockList.map((item: any) => ({
+        const mappedEvents = res.Data.ClockList.map((item: CalendarProps) => ({
           id: item.ID?.toString() || String(Math.random()),
           title: `${item.FAM} - ${item.FPM}`,
           start: item.FDate.split(" (星期")[0],
           // start: item.StartDate, // 确保是 ISO 格式字符串
-          end: item.EndDate, // 可选，确保格式正确
+          // end: item.EndDate, // 可选，确保格式正确
           extendedProps: {
-            calendar: item.CalendarType || "Primary",
+            calendar: "Primary",
           },
           allDay: true,
         }));
